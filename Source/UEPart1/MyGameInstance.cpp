@@ -1,0 +1,106 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "MyGameInstance.h"
+
+UMyGameInstance::UMyGameInstance()
+{
+	// 기본 값은 CDO라는 특별한 템플릿 객체에 저장됨
+	SchoolName = TEXT("기본학교");
+}
+
+void UMyGameInstance::Init()
+{
+	Super::Init();
+
+	// 클래스 정보 가져오기
+	UClass* ClassRuntime = GetClass();
+	UClass* ClassCompile = UMyGameInstance::StaticClass();
+
+	// 클래스 이름 출력
+	UE_LOG(LogTemp, Log, TEXT("학교를 담당하는 클래스: %s"), *ClassRuntime->GetName(), *ClassCompile->GetName());
+
+	// 로그 출력
+	UE_LOG(LogTemp, Log, TEXT("%s"), TEXT("Hello Unreal"));
+
+	// TCHAR | FString
+	TCHAR LogCharArray[] = TEXT("Hello Unreal2");
+	// UE_LOG 함수
+	// Log 카테고리(타입)
+	// 로그 수준(Log, Warning, Error)
+	// 포맷(format, 서식) - 출력할 값의 타입
+	// 가변 인자: 포맷에 지정한 타입에 알맞는 값을 전달
+	UE_LOG(LogTemp, Log, TEXT("%s"), LogCharArray);
+	// UE_LOG(LogTemp, Log, TEXT("%s %d"), LogCharArray, 10); - 가변인자 갯숙가 맞아야 함
+
+	FString LogCharString = LogCharArray;
+	UE_LOG(LogTemp, Log, TEXT("%s"), *LogCharString);
+
+	// FString에서 TCHAR 포인터를 가져오는 방법
+	const TCHAR* LogCharPtr = *LogCharString;
+	TCHAR* LogCharDataPtr = LogCharString.GetCharArray().GetData();
+
+	// 문자열 복사
+	TCHAR LogCharArrayWithSize[100] = {};
+	FCString::Strcpy(LogCharArrayWithSize, LogCharString.Len(), *LogCharString);
+
+	// 복사된 문자열 출력
+	UE_LOG(LogTemp, Log, TEXT("%s"), LogCharArrayWithSize);
+
+	// 문자열 자르기
+	if (LogCharString.Contains(TEXT("unreal"), ESearchCase::IgnoreCase))
+	{
+		// 시작 문자열 검색
+		int32 Index = LogCharString.Find(TEXT("unreal"), ESearchCase::IgnoreCase);
+
+		FString EndString = LogCharString.Mid(Index);
+
+		UE_LOG(LogTemp, Log, TEXT("EndString: %s"), *EndString);
+	}
+
+	// 문자열 나누기
+	FString Left, Right;
+	if (LogCharString.Split(TEXT(" "), &Left, &Right))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Split Result: %s와 %s"), *Left, *Right);
+	}
+	
+	// 변환 함수
+	int32 IntValue = 32;
+	float FloatValue = 3.141592f;
+
+	FString FloatIntString = FString::Printf(TEXT("Int: %d, Float: %f"), IntValue, FloatValue);
+
+	FString FloatString = FString::SanitizeFloat(FloatValue);
+	FString IntString = FString::FromInt(IntValue);
+
+	UE_LOG(LogTemp, Log, TEXT("%s"), *FloatString);
+	UE_LOG(LogTemp, Log, TEXT("Int: %s, Float: %s"), *IntString, *FloatString);
+
+	// 문자열에서 숫자로 변환
+	int32 IntValueFromString = FCString::Atoi(*IntString);
+	float FloatValueFromString = FCString::Atof(*FloatString);
+
+	UE_LOG(LogTemp, Log, TEXT("Int: %d, Float: %f"), IntValueFromString, FloatValueFromString);
+
+
+	// FName 사용
+	FName Key1(TEXT("PELVIS"));
+	FName Key2(TEXT("pelvis"));
+
+	// 비교 결과
+	FString Result = Key1 == Key2 ? TEXT("같음") : TEXT("다름");
+	UE_LOG(LogTemp, Log, TEXT("FName 비교 결과 : %s"), *Result);
+
+	// 부하가 큰 경우
+	for (int ix = 0; ix < 10000; ++ix)
+	{
+		// 키 값
+		//FName SearchInNamePool = FName(TEXT("pelvis"));
+
+		// const static FName SearchInNamePool = FName(TEXT("pelvis")); = 읽기 전용 일 경우
+		static FName SearchInNamePool = FName(TEXT("pelvis"));
+	}
+
+
+}
