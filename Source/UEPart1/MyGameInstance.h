@@ -24,6 +24,6 @@ private:
 
 private:
 	// 학교 이름 변수
-	UPROPERTY();
+	UPROPERTY()
 	FString SchoolName;
 };
