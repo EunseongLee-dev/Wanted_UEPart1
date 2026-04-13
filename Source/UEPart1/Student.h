@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+Ôªø// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -11,17 +11,17 @@
  * 
  */
 UCLASS()
-class UEPART1_API UStudent : public UPerson, public ILessonInterface // ¥Ÿ¡ﬂ ªÛº”
+class UEPART1_API UStudent 
+	: public UPerson,
+	public ILessonInterface
 {
 	GENERATED_BODY()
-
+	
 public:
 	UStudent();
 
 	virtual void DoLesson() override;
 
-private:
-	UPROPERTY()
-	int32 Id;
-	
+	// ÏïåÎ¶ºÏùÑ Íµ¨ÎèÖÌï† Ìï®Ïàò
+	void GetNotification(const FString& School, const FString& NewCourseInfo);
 };

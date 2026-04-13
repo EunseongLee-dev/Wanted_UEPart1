@@ -13,5 +13,4 @@ UCLASS()
 class UEPART1_API UMyObject : public UObject
 {
 	GENERATED_BODY()
-	
 };

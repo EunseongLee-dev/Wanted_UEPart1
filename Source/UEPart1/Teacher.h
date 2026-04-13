@@ -11,17 +11,14 @@
  * 
  */
 UCLASS()
-class UEPART1_API UTeacher : public UPerson, public ILessonInterface
+class UEPART1_API UTeacher 
+	: public UPerson,
+	public ILessonInterface
 {
 	GENERATED_BODY()
-
+	
 public:
 	UTeacher();
 
 	virtual void DoLesson() override;
-
-private:
-	UPROPERTY()
-	int32 Id;
-	
 };
