@@ -2,85 +2,120 @@
 
 
 #include "MyGameInstance.h"
-#include "Student.h"
-#include "Teacher.h"
-#include "Staff.h"
-#include "Card.h"
-#include "CourseInfo.h"
-#include "Algo/Accumulate.h"
 
-UMyGameInstance::UMyGameInstance()
+// 이름 자동완성 해주는 함수
+FString MakeRandomName()
 {
-	// 기본 값은 CDO라는 특별한 템플릿 객체에 저장됨.
-	SchoolName = TEXT("기본학교");
+	// 3글자
+	TCHAR FirstChar[] = TEXT("김이박최");
+	TCHAR MiddleChar[] = TEXT("상혜지성");
+	TCHAR LastChar[] = TEXT("수은원연");
+
+	// 동적 배열을 사용할 때 가능하다면 재할당을 방지하는게 좋음
+	TArray<TCHAR> RandArray;
+	RandArray.SetNum(3);
+	RandArray[0] = FirstChar[FMath::RandRange(0, 3)];
+	RandArray[1] = MiddleChar[FMath::RandRange(0, 3)];
+	RandArray[2] = LastChar[FMath::RandRange(0, 3)];
+
+	// 문자열로 변환이 가능하도록 반환
+	return RandArray.GetData();
 }
 
 void UMyGameInstance::Init()
 {
 	Super::Init();
 
-	// TArray 사용
-	const int32 ArrayNum = 10;
-	TArray<int32> Int32Array;
-
-	for (int32 ix = 1; ix < ArrayNum; ++ix)
+	// 학생 이름 데이터 생성
+	const int32 StudentNum = 300;
+	for (int32 ix = 1; ix <= StudentNum; ++ix)
 	{
-		Int32Array.Add(ix);
+		StudentsData.Emplace(FStudentData(MakeRandomName(), ix));
 	}
 
-	// 짝수 제거
-	Int32Array.RemoveAll(
-		// [] - 캡쳐 (외부 내용을 람다 안에서 사용할 때 활용)
-		// () - 파라미터 
-		// -> - 반환형 
-		// {} - 본문
-		[](int32 Val) -> bool {return Val % 2 == 0; });
+	UE_LOG(LogTemp, Log, TEXT("모든 학생 데이터의 수: %d"), StudentsData.Num());
 
-	// 짝수 삽입
-	Int32Array += {2, 4, 6, 8, 10};
+	// 학생 데이터에서 이름 값만 추출해서 배열에 저장
+	TArray<FString> AllStudentNames;
 
-	// 비교 (동등 비교)
-	TArray<int32> Int32ArrayCompare;
-	int32 CArray[] = { 1,3,5,7,9,2,4,6,8,10 };
-	Int32ArrayCompare.AddUninitialized(ArrayNum); 
+	// 알고리즘을 활용해서 이름 값 추출
+	Algo::Transform(
+		StudentsData,
+		AllStudentNames,
+		[](const FStudentData& Val)
+		{
+			return Val.Name;
+		}
+	);
 
-	// C 스타일 배열을 TArray에 메모리 복사
-	FMemory::Memcpy(Int32ArrayCompare.GetData(), CArray, sizeof(int32) * ArrayNum);
+		UE_LOG(LogTemp, Log, TEXT("모든 학생 이름의 수: %d"), AllStudentNames.Num());
 
-	// 어서트 (크래시를 발생시키지 않고, 출력 로그 창에 오류 메시지 출력)
-	ensureAlways(Int32Array == Int32ArrayCompare);
+		// 학생 데이터를 TSet으로 변환
+		TSet<FString> AllUniqueNames;
+		Algo::Transform(
+			StudentsData,
+			AllUniqueNames,
+			[](const FStudentData& Val)
+			{
+				return Val.Name;
+			}
+		);
 
-	// 합계
-	int32 Sum = 0;
-	for (const int32& Int32Num : Int32Array)
-	{
-		Sum += Int32Num;
-	}
+		UE_LOG(LogTemp, Log, TEXT("중복 없는 학생 이름의 수: %d"), AllUniqueNames.Num());
 
-	// 알고리즘 활용 (합계 구하기)
-	int32 SumByAlgo = Algo::Accumulate(Int32Array, 0);
-	ensureAlways(Sum == SumByAlgo);
+		// 학생 데이터를 TMap으로 변환
+		Algo::Transform(
+			StudentsData,
+			StudentsMap,
+			[](const FStudentData& Val)
+			{
+				return TPair<int32, FString>(Val.Order, Val.Name);
+			}
+		);
 
-	UE_LOG(LogTemp, Log, TEXT("Sum = %d | SumByAlgo: %d | Sum == SumByAlgo: %s"), Sum, SumByAlgo, (Sum == SumByAlgo ? TEXT("TRUE") : TEXT("FALSE")));
+		UE_LOG(LogTemp, Log, TEXT("순번에 따른 학생 맵의 데이터 수: %d"), StudentsMap.Num());
 
-	// Tset 사용
-	TSet<int32> Int32Set;
-	for (int32 ix = 1; ix <= ArrayNum; ++ix)
-	{
-		Int32Set.Add(ix);
-	}
+		// 이름 값을 키로하는 맵
+		TMap<FString, int32> StudentsMapByUniqueName;
 
-	// 제거
-	Int32Set.Remove(2);
-	Int32Set.Remove(4);
-	Int32Set.Remove(6);
-	Int32Set.Remove(8);
-	Int32Set.Remove(10);
+		// 학생 데이터를 Map으로 변환
+		Algo::Transform(
+			StudentsData,
+			StudentsMapByUniqueName,
+			[](const FStudentData& Val)
+			{
+				return TPair<FString, int32>(Val.Name, Val.Order);
+			}
+		);
 
-	// 추가
-	Int32Set.Add(2);
-	Int32Set.Add(4);
-	Int32Set.Add(6);
-	Int32Set.Add(8);
-	Int32Set.Add(10);
+		UE_LOG(LogTemp, Log, TEXT("이름에 따른 학생 맵의 데이터 수: %d"), StudentsMapByUniqueName.Num());
+
+		// 이름 중복을 허용하려는 경우
+		TMultiMap<FString, int32> StudentsMapByName;
+		Algo::Transform(
+			StudentsData,
+			StudentsMapByName,
+			[](const FStudentData& Val)
+			{
+				return TPair<FString, int32>(Val.Name, Val.Order);
+			}
+		);
+
+		UE_LOG(LogTemp, Log, TEXT("이름에 따른 학생 멀티맵의 데이터 수: %d"), StudentsMapByName.Num());
+
+		// 검색
+		const FString TargetName(TEXT("이혜은"));
+		TArray<int32> AllOrders;
+		StudentsMapByName.MultiFind(TargetName, AllOrders);
+
+		UE_LOG(LogTemp, Log, TEXT("이름이 %s인 학생 수: %d"), *TargetName, AllOrders.Num());
+
+		// TSet에 구조체 넣어보기
+		TSet<FStudentData> StudentsSet;
+		for (int32 ix = 1; ix <= StudentNum; ++ix)
+		{
+			StudentsSet.Emplace(FStudentData(MakeRandomName(), ix));
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("학생 데이터 셋의 수: %d"), StudentsSet.Num());
 }

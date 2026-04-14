@@ -1,9 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "StudentData.h"
 #include "MyGameInstance.generated.h"
 
 /**
@@ -15,18 +16,18 @@ class UEPART1_API UMyGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	UMyGameInstance();
-	
-private:
-	// °ÔÀÓ ÀÎ½ºÅÏ½º¸¦ ÃÊ±âÈ­ÇÒ ¶§ »ç¿ëÇÏ´Â ÇÔ¼ö.
 	virtual void Init() override;
 
 private:
-	// ÇĞ±³ ÀÌ¸§ º¯¼ö.
-	UPROPERTY()
-	FString SchoolName;
+	// êµ¬ì¡°ì²´ì˜ ê²½ìš°, ìŠ¤íƒ ë©”ëª¨ë¦¬(í•­ìƒì€ ì•„ë‹˜)ì—ì„œ ê´€ë¦¬
+	TArray<FStudentData> StudentsData;
 
-	// ÇĞ»ç Á¤º¸ °´Ã¼ 
+	// UObjectì˜ ê²½ìš° í™ì— ë°°ì¹˜ ë° ê´€ë¦¬ë¨
+	// TArrayì—ì„œ UObject íƒ€ì…ì„ ì‚¬ìš©í•  ë•ŒëŠ” UPROPERTY í•„ìˆ˜
 	UPROPERTY()
-	TObjectPtr<class UCourseInfo> CourseInfo;
+	TArray<TObjectPtr<class UStudent>> Students;
+
+
+	TMap<int32, FString> StudentsMap;
+	
 };
