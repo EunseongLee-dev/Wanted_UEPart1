@@ -20,4 +20,8 @@ public:
 protected:
 	virtual void Init() override;
 
+private:
+	UPROPERTY()
+	TObjectPtr<class UStudent> StudentSource;
+
 };
